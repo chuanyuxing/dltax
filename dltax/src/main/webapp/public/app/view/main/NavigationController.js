@@ -4,10 +4,10 @@
  *
  * TODO - Replace this content of this view to suite the needs of your application.
  */
-Ext.define('dltax.view.main.MainController', {
+Ext.define('dltax.view.main.NavigationController', {
     extend: 'Ext.app.ViewController',
 
-    alias: 'controller.main',
+    alias: 'controller.navigation',
 
     onItemSelected: function (sender, record) {
         //Ext.Msg.confirm('Confirm', 'Are you sure?', 'onConfirm', this);

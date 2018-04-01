@@ -1,10 +1,10 @@
 /**
  * This class is the view model for the Main view of the application.
  */
-Ext.define('dltax.view.main.MainModel', {
+Ext.define('dltax.view.main.NavigationModel', {
     extend: 'Ext.app.ViewModel',
 
-    alias: 'viewmodel.main',
+    alias: 'model.navigation',
 
     data: {
         name: _app_name_,
