@@ -1,7 +1,7 @@
 /**
  * This view is an example list of people.
  */
-Ext.define('dltax.view.main.List', {
+Ext.define('dltax.view.customer.List', {
     extend: 'Ext.grid.Panel',
     xtype: 'mainlist',
 
@@ -20,7 +20,7 @@ Ext.define('dltax.view.main.List', {
     
     loadMask: true,
     
-    height: 500,
+    height: 510,
     
     autoLoad: false,
     
@@ -48,21 +48,6 @@ Ext.define('dltax.view.main.List', {
     store: {
         type: 'personnel'
     },
-
-//    columns: [
-//        { text: '所属分部',  dataIndex: 'name' },
-//        { text: '序号', dataIndex: 'email', flex: 1 },
-//        { text: '客户编号', dataIndex: 'phone', flex: 1 }
-//        { text: '姓名',  dataIndex: 'name' },
-//        { text: '日语名', dataIndex: 'email', flex: 1 },
-//        { text: '性别', dataIndex: 'phone', flex: 1 },
-//        { text: '出生年月日',  dataIndex: 'name' },
-//        { text: '联系电话', dataIndex: 'email', flex: 1 },
-//        { text: 'E-mail', dataIndex: 'phone', flex: 1 },
-//        { text: 'QQ', dataIndex: 'phone', flex: 1 },
-//        { text: '微信号', dataIndex: 'phone', flex: 1 },
-//        { text: '家庭住址', dataIndex: 'phone', flex: 1 }
-//    ],
     
 //    plugins: {
 //        ptype: 'bufferedrenderer',
