@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>user page</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="text/javascript" src="resources/static/scripts/extjs/ext-all.js"></script>
+</head>
+<body>
+<table>
+<tr>
+  <th>Id</th>
+  <th>Name</th>
+</tr>
+<tr th:each="user : ${users}">
+  <td th:text="${user.id}"></td>
+  <td th:text="${user.name}"></td>
+</tr>
+</table>
+
+</body>
+</html>

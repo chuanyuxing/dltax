@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html th:with="lang=${#locale.language}" th:lang="${lang}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{app.name}"></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="text/javascript" src="/scripts/extjs/ext-all.js"></script>
+    <script type="text/javascript" src="/scripts/extjs/PagingMemoryProxy.js"></script>   
+    <script type="text/javascript" src="/scripts/extjs/locale-zh_CN.js"></script>
+    <link rel="stylesheet" href="/styles/extjs/dltax-all.css">
+    <script type="text/javascript" src="/public/comm.js"></script>
+    <script type="text/javascript" src="/public/app.js"></script>
+	<script th:inline="javascript">
+	/*<![CDATA[*/
+	
+	   var _app_name_ = /*[[${appName}]]*/ 'default';	   
+	
+	/*]]>*/
+	</script>
+	<style>
+	</style>
+</head>
+<body></body>
+</html>

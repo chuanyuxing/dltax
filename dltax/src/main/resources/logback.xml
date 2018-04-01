@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE logback>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+	<property name="logname" value="dltax" />
+
+    <!--ログレベル設定開発用 -->
+    <springProfile name="dev">
+        <property name="logpath" value="E:/tmp/log" />
+        <!--ログレベル -->
+        <property name="LOG_LEVEL" value="INFO" />
+        <property name="BATCH_LOG_LEVEL" value="INFO" />
+    	<!-- log4jdbc-log4j2 -->
+        <logger name="jdbc.sqltiming" level="INFO" />
+        <logger name="jdbc.resultsettable" level="INFO" />
+        <logger name="jdbc.connection" level="WARN" />
+    </springProfile>
+    
+    <!--ログレベル設定本番用 -->
+    <springProfile name="prd">
+        <property name="logpath" value="E:/tmp/log" />
+        <!--ログレベル -->
+        <property name="LOG_LEVEL" value="INFO" />
+        <property name="BATCH_LOG_LEVEL" value="INFO" />
+    	<!-- log4jdbc-log4j2 -->
+        <logger name="jdbc.sqltiming" level="ERROR" />
+        <logger name="jdbc.resultsettable" level="ERROR" />
+        <logger name="jdbc.connection" level="ERROR" />
+    </springProfile>
+    
+    <!--共通log4jdbc-log4j2 -->
+    <logger name="jdbc" level="OFF" />
+    <logger name="jdbc.sqlonly" level="OFF" />
+    <logger name="jdbc.resultset" level="OFF" />
+    <logger name="jdbc.audit" level="OFF" />
+    
+    <!--出力ルール～コンソール～ -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+            <!--出力内容 -->
+            <pattern>%d{yyyy/MM/dd HH:mm:ss} %-5level %msg%n</pattern>
+        </encoder>
+    </appender>
+    
+	<appender name="FILE_WEB"
+        class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日ごとにログファイル作成 -->
+        <file>${logpath}${logname}.log</file>
+        <!--日ごとにログファイル作成 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日付けが変わったら年月フォルダ内にzipファイル作成 -->
+            <fileNamePattern>${logpath}%d{yyyyMM,aux}/${logname}-%d{yyyy-MM-dd}.log.zip</fileNamePattern>
+            <!--180日後に破棄 -->
+            <maxHistory>180</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <charset>UTF-8</charset>
+            <!--出力内容 -->
+            <pattern>%d{yyyy/MM/dd HH:mm:ss}\t%-5level\t%msg%n</pattern>
+        </encoder>
+    </appender>
+    
+    <!--rootログレベルと使用出力ルール -->
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE_WEB" />
+    </root>
+
+</configuration>
