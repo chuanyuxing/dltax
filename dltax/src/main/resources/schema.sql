@@ -53,6 +53,8 @@ CREATE TABLE user (
   lastname        varchar(30),
   mail            varchar(30),
   admin_flag      int,
+  lock_flag       int,
+  invalid_flag   int,
   create_at       date,
   update_at       date
 };
