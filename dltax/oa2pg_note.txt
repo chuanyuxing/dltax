@@ -1,0 +1,145 @@
+========================================================
+　　　　ora2pg19.1を利用し、oracle⇒prosgreへ移行
+========================================================
+　※参考：https://ora2pg.darold.net/documentation.html
+
+　■移行環境
+　　・開発PC　windows7 64bit
+
+　■移行元（Oracle12c）　　
+　　
+　■移行先（Postgres9.6）
+　　・開発PCにデフォルトインストール
+
+　■前提条件
+　　・Oralce Client 11g（デフォルトインストール）
+　　　※ORACLE_HOMEの環境変数設定必要
+　　・postgresql-9.6.10-2（デフォルトインストール　postgres/postgre）
+　　・ActiveState Perl（デフォルトインストール）
+　　　※参考：http://www.activestate.com/activeperl
+　　・dmake-4.12.2.2のインストール（DownLoad後、環境変数設定だけ）
+　　　※参考：https://metacpan.org/release/dmake
+　　　
+　■ora2Pgインストール
+　　・perl Makefile.PL
+　　・dmake && dmake install
+　　・ORACLE環境に合わせて、ora2Pg設定ファイルの修正（C:\ora2pg\ora2pg_dist.conf）
+　　　　●ORACLE_HOME	D:\app\admin\product\11.2.0\client_1
+　　　　●ORACLE_DSN	dbi:Oracle:host=;sid=;port=1521
+　　　　●ORACLE_USER	
+　　　　●ORACLE_PWD	
+　　　　●SCHEMA	
+　　　　●NLS_NCHAR	AL32UTF8
+　　　　
+　■Oracleへの接続確認
+　　　・ora2pg -c ora2pg_dist.conf -t SHOW_VERSION
+　　　
+　■DDL出力
+　　　１．----------------------------------TABLE----------------------------------
+　　　　ora2pg -c ora2pg_dist.conf -t TABLE -o 1.table.sql > 1.table.log 2>&1
+　　　２．----------------------------------VIEW----------------------------------
+　　　　ora2pg -c ora2pg_dist.conf -t VIEW -o 2.view.sql > 2.view.log 2>&1
+　　　   ※ファイル2.view.sqlにある「"」を削除
+　　　３．----------------------------------PROCEDURE----------------------------------
+　　　　ora2pg -c ora2pg_dist.conf -p -t PROCEDURE -o 3.procedure.sql > 3.procedure.log 2>&1
+　　　４．----------------------------------FUNCTION----------------------------------
+　　　　ora2pg -c ora2pg_dist.conf -t FUNCTION -o 4.function.sql > 4.function.log 2>&1
+　　　５．----------------------------------PACKAGE----------------------------------
+　　　　ora2pg -c ora2pg_dist.conf -t PACKAGE -o 5.package.sql > 5.package.log 2>&1
+　　　６．----------------------------------TYPE----------------------------------
+　　　　ora2pg -c ora2pg_dist.conf -t TYPE -o 6.type.sql > 6.type.log 2>&1
+　　　７．----------------------------------TRIGGER----------------------------------
+　　　　ora2pg -c ora2pg_dist.conf -t TRIGGER -o 7.trigger.sql > 7.trigger.log 2>&1
+　　　８．----------------------------------SEQUENCE----------------------------------
+　　　　ora2pg -c ora2pg_dist.conf -t SEQUENCE -o 8.sequence.sql > 8.sequence.log 2>&1
+　　　９．----------------------------------COPY----------------------------------
+　　　　ora2pg -c ora2pg_dist.conf -t COPY -o 9.copy.sql > 9.copy.log 2>&1
+　　　　※PowerShellラスト3行確認
+　　　　Get-Content .\9.copy.log | Select-Object -Last 3
+
+　　　※指定したテーブルの個別出力も可能：
+		ora2pg -c ora2pg_dist.conf -t TABLE -a ATTR_DEF_DIC -o 1.ATTR_DEF_DIC.table.sql
+		psql -f C:\ora2pg\1.ATTR_DEF_DIC.table.sql -U postgres -d KEIMS2 -h localhost
+
+　■DDL適用
+　　cd C:\ora2pg\
+　　　１．----------------------------------TABLE----------------------------------
+　　　　psql -f C:\ora2pg\1.table.sql -U postgres -d schema -h localhost
+　　　２．----------------------------------VIEW----------------------------------
+　　　　psql -f C:\ora2pg\2.view.sql -U postgres -d schema -h localhost
+　　　３．----------------------------------PROCEDURE----------------------------------
+　　　　psql -f C:\ora2pg\3.procedure.sql -U postgres -d schema -h localhost
+　　　４．----------------------------------FUNCTION----------------------------------
+　　　　psql -f C:\ora2pg\4.function.sql -U postgres -d schema -h localhost
+　　　５．----------------------------------PACKAGE----------------------------------
+　　　　psql -f C:\ora2pg\5.package.sql -U postgres -d schema -h localhost
+　　　６．----------------------------------TYPE----------------------------------
+　　　　psql -f C:\ora2pg\6.type.sql -U postgres -d schema -h localhost
+　　　７．----------------------------------TRIGGER----------------------------------
+　　　　psql -f C:\ora2pg\7.trigger.sql -U postgres -d schema -h localhost
+　　　８．----------------------------------SEQUENCE----------------------------------
+　　　　psql -f C:\ora2pg\8.sequence.sql -U postgres -d schema -h localhost
+　　　９．----------------------------------COPY----------------------------------
+　　　　psql -f C:\ora2pg\9.copy.sql -U postgres -d schema -h localhost
+　　　　※制約一旦削除（コピーの順番はテーブル名の昇順のため、制約存在するとエラー）
+　　　　　ALTER TABLE tablename DROP  CONSTRAINT sys_c0068980;
+　　　　※制約再作成
+　　　　　ALTER TABLE tablename ADD CONSTRAINT sys_c0068980 FOREIGN KEY (column_name) REFERENCES tablename(column_name) ON DELETE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE;
+　　　　
+　　
+　■PL/PGSQL修正点：
+　　●参照Link
+　　　https://pgecons-sec-tech.github.io/tech-report/html_wg2_StoredProcedureMigrationResearch/wg2_StoredProcedureMigrationResearch.html
+　　　https://wiki.postgresql.org/wiki/Oracle_to_Postgres_Conversion
+　　　https://stackoverflow.com/questions/32928400/porting-from-oracle-to-postgres
+　　　https://www.ntt-tx.co.jp/column/postgresql_blog/20171027/
+　　
+　　●該当箇所
+　　・gotoサポートしない
+　　・merge intoサポートしない
+　　  ※https://dev.classmethod.jp/server-side/db/postgresql-9-5-new-function-upsert-use/
+　　・変数名：text2_ARRAY⇒varchar2_array（ツールは暗黙的に、varchar2からtext2へ変更したため）
+　　・Nested functionsサポートしない⇒書き方変更
+　　・関数は100を超える引数を取ることができません
+　　・pgはORACLEのようなパッケージの概念外ない⇒パッケージ単位にスキーマ作成
+　　・OracleのPL/SQLでは、パッケージ定義でセッションベースのグローバル変数を作成できる。 
+　　　PostgresqlのPL/pgSQLでは、パッケージがなく、独立したプロシージャと関数しかない。⇒一時テーブルよりグローバル変数管理
+　　・DBMS_OUTPUT.NEW_LINE;⇒RAISE NOTICE '\r\n';
+　　・PostgreSQLにはOracleにあるような膨大なライブラリが存在しない
+　　　　https://www.ashisuto.co.jp/product/category/database/postgresql/detail/list/oracle.html
+　　　　DBMS_SQL	×
+　　　　DBMS_OUTPUT	×
+　　　　
+　　・クエリ引数「：XXXX」⇒「$1」
+　　・カーソル%ISOPENサポートしないため、下記にてカーソルCLOSE対応
+		BEGIN
+		    CLOSE カーソル名;
+		EXCEPTION
+		    WHEN invalid_cursor_name THEN NULL;
+		END;
+　　
+　　・カーソル%FOUND、カーソル%NOTFOUND　⇒　FOUND、NOT FOUND
+　　
+　　●サンプル
+　　・DDLフォルダー下のpackage_modify
+　　
+　■JAVA修正点
+　　１．JDBC（Oracle⇒Postgresql）
+　　２．SQL
+　　　・CONNECT BY⇒WITH RECURSIVE
+　　　・NEXTVAL⇒nextval(sequenceName)
+　　　・SYSDATE⇒date_trunc('second', now() :: timestamp)
+　　　・(+)⇒Postgresqlの書き方にする
+　　　・TO_CHAR⇒Postgresqlの書き方にする
+　　　・ROWNUM⇒limit
+　　　・NVL⇒COALESCE
+　　　・カラム名：大/小文字が区別されない⇒小文字に統一
+　　　・VARCHAR2⇒VARCHAR
+　　　・NUMBER⇒NUMERIC
+
+
+
+
+
+
+
